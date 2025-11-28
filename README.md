@@ -1,36 +1,44 @@
-# Interactive Image Background Remover
+# BGRemover
 
-Interactive Background Remover is a user-friendly tool designed to remove backgrounds from images using a combination of interactive models (Segment Anything) and whole-image models (such as u2net, disnet, rmbg, and BiRefNet). This allows you to refine and fine tune your background removal, in a similar way to apps like Photoroom, instead of only running models on the entire image.
+A local background removal tool. This is a fork of the original project by pricklygorse, developed by Alfadoc.
+
+This application provides an interface for removing backgrounds from images using ONNX models. It runs offline and supports whole-image extraction and interactive manual segmentation.
 
 ## Features
 
-- **Interactive Model Support**: Utilise Segment Anything for detailed object selection by clicking or drawing boxes on the image.
-- **Whole-Image Model Support**: Apply models like u2net, disnet, rmbg, and BiRefNet for quick background removal across the entire image, which can be further refined.
-- **Zoom and Pan**: Zoom in on specific parts of the image and pan around for detailed editing. The models are only run on the viewed area so you can incrementally build up an image from higher resolution patches.
-- **Manual Paintbrush Mode**: Manually refine the background removal with a paintbrush tool for areas not covered by the models.
-- **Mask Refinement**: Smooth edges, filter anomalous areas and soften the mask for a natural look. You can directly edit the mask for high fidelity background removal.
-- **Drop Shadow**: Basic drop shadow effect for the cutout object.
-- **Background Options**: Choose from various background colors or apply a blurred background effect.
-- **Image Editing**: Includes a built-in image editor and cropper to preprocess images before background removal.
-- **Undo/Redo**
-- **Save Options**: Save the processed image in various formats (PNG, JPEG, WebP) with customisable quality settings and auto-trim.
-- **Clipboard Support**: Load images directly from the clipboard for quick editing.
-- **Windows, Linux and Mac Builds**: In the Github releases. Mac is currently untested, please let me know
+- **Interactive AI Support**: Utilise Segment Anything models like MobileSAM or ViT-H for precise object selection using point clicks or bounding boxes.
+- **Automated AI Support**: Automate background removal using integrated whole-image models like BiRefNet, RMBG-1.4, U2Net, and IS-Net.
+- **Hardware Acceleration**: A Toggle to switch between CPU and GPU processing.
+- **Viewport Navigation**: Zoom and Pan controls.
+- **Manual Paintbrush**: Refine masks manually using a toggleable paintbrush tool with adjustable size.
+- **Mask Compositing**: Add to or Subtract from the current mask, with Undo/Redo history.
+- **Edge Refinement**: Gaussian blur to the mask boundaries for natural blending.
+- **Alpha Channel**: A raw alpha channel view, can be used to inspect the mask for imperfections before exporting, or be exported itself.
+- **Drop Shadow**: A drop shadow effect with controls for opacity, blur radius, and X/Y offsets.
+- **Background**: Replace backgrounds with transparency, a solid custom color or Blur.
+- **File Gallery**: Manage multiple imported images via a visual thumbnail strip, allowing you to load, delete, or clear files from the workspace.
+- **Import**: Files and Folders can be imported via Explorer selection or via dragging files or folders directly into the application window.
+- **Export Formats**: Save processed images as PNG, JPG or WEBP.
+- **Quick Export**: Instantly save the current result to a configured output folder.
+- **User Interface**: Dark Carbon theme.
 
-![Screenshot of main window](Images/main_image.jpg)
+
+
+![Screenshot of main window](Images/MainPage.png)
 
 ## Installation
 
 ### Prerequisites
 
 - Python 3.x
-- Required Python packages: `Pillow`, `scipy`, `numpy`, `onnxruntime`, `opencv-python`, `screeninfo`, `PyQt6`
+- Required Python packages: `onnxruntime-directml==1.16.0`, `opencv-python`, `numpy==1.26.4`, `pillow`, `tkinterdnd2`
 
+Install the required libraries using the following command:
 ```bash
-pip install pyqt6 Pillow scipy numpy onnxruntime opencv-python screeninfo
+pip install onnxruntime-directml==1.16.0 opencv-python pillow tkinterdnd2 numpy==1.26.4
 ```
 
-Or download prebuilt executables for Windows, Linux and Mac from the [Github releases](https://github.com/pricklygorse/Interactive-Image-Background-Remover/releases) 
+Or download prebuilt executables for Windows, Linux and Mac from the [Github releases](link) 
 
 
 ## Model Downloads
@@ -81,17 +89,13 @@ whole_models = [
 
 Run the rebuilt executables: [Github releases](https://github.com/pricklygorse/Interactive-Image-Background-Remover/releases) 
 
-Run the script from the command line:
+Or run the script from the command line:
 
 ```bash
-python interactive_background_remover.py
+python BGRemover.py
 ```
 
-You can also provide image file paths as command-line arguments to load them directly:
 
-```bash
-python interactive_background_remover.py image1.jpg image2.png
-```
 
 
 ### Interface Overview
@@ -100,65 +104,70 @@ python interactive_background_remover.py image1.jpg image2.png
 - **Output Canvas**: Displays the processed image with the background removed.
 - **Controls Panel**: Contains various tools and options for interacting with the image and models.
 
+
 ### Basic Workflow
 
-1. **Load Image**: Click "Open Image" to load an image file or "Open Clipboard" to use an image from the clipboard.
-2. **Select Model**: Choose a model from the "Model Selection" section.
-3. **Zoom and Pan**: Use the full image or zoom into region of interest (arrow keys or middle mouse to pan, mouse scroll to zoom)
-4. **Generate Background Removal Mask**:
-   - **Interactively: Segment Anything**: Left-click to add a positive point, right-click to add a negative (exclusion) point, or drag to draw a box around the object.
-   - **Whole-Image Models**: Click "Run whole-image model" to apply the selected model to the entire image (or zoomed area).
-5. **Refine Background Removal Mask**:
-   - Use the "Add mask" and "Subtract mask" buttons to add the model output to the background removal mask.
-   - Toggle "Manual Paintbrush" mode to manually edit the mask. Right click to draw a mask, left to erase.
-   - Check "Post Process Model Mask" (binarise the mask and smooth edges) and "Soften Model Mask/Paintbrush" to adjust the model output
-   - Use Show Full Mask to edit the mask directly instead of the output image
-6. **Adjust Background**: Select a background color or enable the "Blurred" option for a blurred background.
-7. **Save Image**: Click "Save Image As...." to save the processed image.
+1.  **Select Hardware & Model**: 
+    - **Hardware**: Toggle between "Run on CPU" or "Run on GPU" for your hardware preference.
+    - **Models**: Choose the models from the "SAM MODEL" and "WHOLE IMG" dropdowns.
+2.  **Load Images**: 
+    - **Import**: Click "Import Files" to select specific images or "Import Folder" to load an entire directory. You can also Drag & Drop files directly onto the window.
+    - **Gallery**: Loaded images appear in the gallery. Click a thumbnail to select it, then click "Use" to load it into the workspace.
+
+3.  **Navigation**: 
+    - **Controls Panel**: Use the mouse scroll wheel to scroll up and down the Panel, or use the lateral scrollbar.
+    - **Zoom**: Use the mouse scroll wheel to zoom in and out bothe Input and Output relative to the cursor.
+    - **Pan**: Right-click and drag to move the image view. Alternatively, toggle "Pan Mode" Off.
+
+4.  **Generate Masks**:
+    - **Auto-Detect Subject**: Click "AUTO-DETECT SUBJECT" to let the AI automatically identify and mask the main subject.
+    - **Manual Detection**: Click "MANUAL DETECTION" to activate interactive mode:
+        - **Green Point**: Left-click on areas you want to keep.
+        - **Red Point**: Right-click on areas you want to exclude.
+        - **Box Selection**: Toggle "Box Mode" On to use this feature. Left-click and drag to draw a box around the object, SAM will analize for a subject in it.
+
+5.  **Refine & Combine**:
+    - **Apply Mask**: The AI creates a blue preview overlay. Click "Add" to commit this overlay to your final result, or "Subtract" to remove it.
+    - **Manual Paintbrush**: Toggle the paintbrush tool. Draw on the image to create a manual selection, then click "Add" or "Subtract" to apply it.
+    - **History**: Use "Undo" and "Redo" to step backward or forward through your masking changes.
+
+6.  **Compositing Tools**:
+    - **Background**: Choose between "Transparent", "Plain color" or "Blur".
+    - **Effects**: Toggle "Drop Shadow" to add a customizable shadow (opacity, blur, x/y offset). Toggle "Soften Edges" to smooth the mask boundaries.
+    - **Alpha Channel**: Toggle "Alpha Channel" to view the Black&white mask, can be used to search for imperfections or be exported itself.
+
+7.  **Export**: 
+    - **Format**: Select your desired output format (PNG, JPG, or WEBP).
+    - **Save**: Click "Quick Export" to instantly save to your output folder, or "Save As..." for a custom dialog.
+
+### Keyboard Shortcuts
+
+| Key | Action |
+| :--- | :--- |
+| **A** | Add Mask |
+| **S** | Subtract Mask |
+| **D** | Copy Source (Reset) |
+| **W** | Clear Output |
+| **R** | Reset All |
+| **C** | Clear SAM Points |
+| **P** | Toggle Paint |
+| **V** | Erase Visible Area |
+| **Ctrl + S** | Save As... |
+| **Alt + Q** | Quick Export |
 
 
-
-### Hotkeys
-
-- `a`: Add current mask to the output image.
-- `s`: Subtract current mask from the output image.
-- `Ctrl+z`: Undo the last action.
-- `p`: Toggle manual paintbrush mode.
-- `c`: Clear current mask and coordinate points.
-- `w`: Reset the current working image.
-- `r`: Reset everything (image, masks, coordinates).
-- `v`: Clear the visible area on the working image.
-- `Ctrl+s`: Save as....
-- `Ctrl+Shift+S`: Quick save JPEG with a white background.
-- `u`: Run u2net model.
-- `i`: Run disnet model.
-- `o`: Run rmbg1.4 model.
-- `b`: Run BiRefNet model.
-- `Middle Mouse`, `Left`, `Right`, `Up`, `Down`: Pan the image.
-- `Ctrl + trackpad`: Zoom
-
-
-### Image Editing
-
-Click "Edit Image" to open the built-in image editor, where you can crop, rotate, and adjust various image parameters like brightness, contrast, saturation, and white balance.
-
-![Screenshot of main window](Images/image_editor.jpg)
 
 
 ## Troubleshooting
 
 - **No models found**: Ensure that the required models are downloaded and placed in the `Models/` directory.
-- **Performance issues**: Zooming out can be laggy, especially with multiple scroll wheel clicks and multiple effects applied such as blurred background and drop shadow.
+- **Performance issues**: Zooming out can be laggy, especially with multiple scroll wheel clicks and multiple effects applied such as blurred background and drop shadow, GPU may not work propelly.
 
-# Support Me
 
-Find this useful and want to support my work? [You can buy me a coffee (or whatever) here.](https://ko-fi.com/pricklygorse) :)
-
-I'm fairly new to python and tkinter so any improvements to the code, features, and suggestions are welcome. There are likely bugs.
 
 
 # Acknowledgements
 
-This was originally inspired by the command line program [RemBG by Daniel Gatis](https://github.com/danielgatis/rembg), and some of the inference code is adapted from this. 
+This is a fork of pricklygorse's project [Interactive Image Background Remover](https://github.com/pricklygorse/Interactive-Image-Background-Remover).
 
-Huge thanks to Meta for Segment Anything and all the other model authors for releasing their models. 
+You can support him [here](https://ko-fi.com/pricklygorse)
