@@ -1,6 +1,5 @@
-Pillow==10.4.0
-scipy==1.11.3
+onnxruntime-directml==1.16.0
+opencv-python
+pillow
+tkinterdnd2
 numpy==1.26.4
-onnxruntime==1.18.1
-opencv-python==4.10.0.84
-pyqt6
