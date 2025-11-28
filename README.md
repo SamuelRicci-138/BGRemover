@@ -87,7 +87,7 @@ whole_models = [
 
 ### Launching the Application
 
-Directly un the executable: [Github releases]([https://github.com/pricklygorse/Interactive-Image-Background-Remover/releases](https://github.com/SamuelRicci-138/BGRemover/releases/tag/v1.0.0)) 
+Directly un the executable: [Github releases](https://github.com/SamuelRicci-138/BGRemover/releases/tag/v1.0.0) 
 
 Or run the script from the command line:
 
