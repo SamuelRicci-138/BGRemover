@@ -2209,10 +2209,16 @@ class BackgroundRemoverGUI:
         if not hasattr(self, 'btn_bg_trans') or not self.btn_bg_trans.winfo_exists(): return
         if not hasattr(self, 'btn_fmt_jpg') or not self.btn_fmt_jpg.winfo_exists(): return
 
+        # FIX: Determine correct color based on current selection
+        is_jpg_selected = (self.export_format == "jpg")
+        
+        jpg_rest_bg = COLORS["accent"] if is_jpg_selected else COLORS["card_bg"]
+        jpg_rest_fg = "white" if is_jpg_selected else COLORS["fg"]
+
         if self._flash_trans_step >= 6:
-            # Restore original state (Active for the currently selected format/mode)
+            # End of animation: Restore original state
             self.btn_bg_trans.config(bg=COLORS["accent"], fg="white")
-            self.btn_fmt_jpg.config(bg=COLORS["card_bg"], fg=COLORS["fg"])  # JPG is not active
+            self.btn_fmt_jpg.config(bg=jpg_rest_bg, fg=jpg_rest_fg) 
             return
 
         is_yellow = (self._flash_trans_step % 2 == 0)
@@ -2220,8 +2226,9 @@ class BackgroundRemoverGUI:
             self.btn_bg_trans.config(bg="#FFD700", fg="black")
             self.btn_fmt_jpg.config(bg="#FFD700", fg="black")
         else:
+            # Animation off-cycle: Restore original state
             self.btn_bg_trans.config(bg=COLORS["accent"], fg="white")
-            self.btn_fmt_jpg.config(bg=COLORS["card_bg"], fg=COLORS["fg"])
+            self.btn_fmt_jpg.config(bg=jpg_rest_bg, fg=jpg_rest_fg)
 
         self._flash_trans_step += 1
         self.root.after(150, self.animate_transparent_flash)
